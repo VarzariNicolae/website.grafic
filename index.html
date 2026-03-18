@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<title>Graficul zilei</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    margin: 0;
+    padding: 20px;
+}
+
+/* container */
+.container {
+    max-width: 700px;
+    margin: auto;
+}
+
+/* card */
+.card {
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+/* titlu */
+h1 {
+    text-align: center;
+}
+
+/* timeline */
+.timeline {
+    position: relative;
+    height: 50px;
+    background: #1f2937;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+/* shifturi */
+.shift {
+    position: absolute;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.main { background: #38bdf8; }
+.extra { background: #facc15; color: black; }
+
+/* indicator ora */
+.now {
+    position: absolute;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background: red;
+}
+
+/* labels */
+.labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    opacity: 0.7;
+    margin-top: 5px;
+}
+
+/* status */
+.status {
+    text-align: center;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+/* calendar */
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-top: 15px;
+}
+
+.dayBox {
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 12px;
+    background: #1f2937;
+}
+
+.double { background: #facc15; color: black; }
+.today { outline: 2px solid red; }
+
+/* responsive */
+@media (max-width: 600px) {
+    .timeline { height: 40px; }
+    .shift { font-size: 10px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+    <h1>Graficul zilei</h1>
+    <div id="day"></div>
+
+    <div class="timeline" id="timeline">
+        <div class="now" id="now"></div>
+    </div>
+
+    <div class="labels">
+        <span>18:00</span>
+        <span>02:00</span>
+        <span>10:00</span>
+    </div>
+
+    <div class="status" id="status"></div>
+</div>
+
+<div class="card">
+    <h2 style="text-align:center;">Istoric zile</h2>
+    <div class="calendar" id="calendar"></div>
+</div>
+
+</div>
+
+<script>
+const today = new Date();
+const day = today.getDay();
+const days = ["Duminica","Luni","Marti","Miercuri","Joi","Vineri","Sambata"];
+document.getElementById("day").innerText = "Astazi: " + days[day];
+
+const baseDate = new Date("2026-03-18");
+
+// verifica tura dubla
+function isDouble(date) {
+    const diff = Math.floor((date - baseDate) / (1000*60*60*24));
+    return diff % 2 === 0;
+}
+
+// timeline
+const timeline = document.getElementById("timeline");
+
+if (day >= 1 && day <= 5) {
+
+    const main = document.createElement("div");
+    main.className = "shift main";
+    main.style.left = "0%";
+    main.style.width = "60%";
+    main.innerText = "18-02";
+    timeline.appendChild(main);
+
+    if (isDouble(today)) {
+        const extra = document.createElement("div");
+        extra.className = "shift extra";
+        extra.style.left = "60%";
+        extra.style.width = "40%";
+        extra.innerText = "02-10";
+        timeline.appendChild(extra);
+
+        document.getElementById("status").innerText = "TURA DUBLA";
+    } else {
+        document.getElementById("status").innerText = "TURA NORMALA";
+    }
+
+} else {
+    document.getElementById("status").innerText = "Weekend";
+}
+
+// 🔴 indicator ora curenta
+function updateNow() {
+    const now = new Date();
+
+    // convertim ora intre 18:00 si 10:00 in procent
+    let hours = now.getHours() + now.getMinutes()/60;
+
+    let percent = 0;
+
+    if (hours >= 18) {
+        percent = (hours - 18) / 16 * 100;
+    } else if (hours <= 10) {
+        percent = (hours + 6) / 16 * 100;
+    } else {
+        percent = -10; // in afara intervalului
+    }
+
+    document.getElementById("now").style.left = percent + "%";
+}
+
+setInterval(updateNow, 60000);
+updateNow();
+
+// 📊 calendar (ultimele 14 zile)
+const cal = document.getElementById("calendar");
+
+for (let i = 13; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(today.getDate() - i);
+
+    const box = document.createElement("div");
+    box.className = "dayBox";
+
+    const label = d.getDate() + "/" + (d.getMonth()+1);
+
+    box.innerText = label;
+
+    if (isDouble(d)) box.classList.add("double");
+
+    if (d.toDateString() === today.toDateString())
+        box.classList.add("today");
+
+    cal.appendChild(box);
+}
+</script>
+
+</body>
+</html>
