@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<title>Graficul zilei</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.card {
+    background: rgba(255,255,255,0.05);
+    padding: 30px;
+    border-radius: 20px;
+    width: 500px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.day {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+/* Timeline */
+.timeline {
+    position: relative;
+    height: 50px;
+    background: #1f2937;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* intervale */
+.shift {
+    position: absolute;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.main {
+    background: #38bdf8;
+}
+
+.extra {
+    background: #facc15;
+    color: black;
+}
+
+/* etichete ore */
+.labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-top: 5px;
+    opacity: 0.7;
+}
+
+.status {
+    text-align: center;
+    margin-top: 15px;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h1>Graficul zilei</h1>
+    <div class="day" id="day"></div>
+
+    <div class="timeline" id="timeline"></div>
+
+    <div class="labels">
+        <span>18:00</span>
+        <span>02:00</span>
+        <span>10:00</span>
+    </div>
+
+    <div class="status" id="status"></div>
+</div>
+
+<script>
+const today = new Date();
+const day = today.getDay();
+
+const days = ["Duminica","Luni","Marti","Miercuri","Joi","Vineri","Sambata"];
+document.getElementById("day").innerText = "Astazi: " + days[day];
+
+// baza tura dubla
+const baseDate = new Date("2026-03-18");
+const diffDays = Math.floor((today - baseDate) / (1000*60*60*24));
+
+let isDouble = (diffDays % 2 === 0);
+
+// fortam azi
+const todayStr = today.toISOString().split('T')[0];
+if (todayStr === "2026-03-18") {
+    isDouble = true;
+}
+
+const timeline = document.getElementById("timeline");
+
+if (day >= 1 && day <= 5) {
+
+    // TURA PRINCIPALA (18-02)
+    const mainShift = document.createElement("div");
+    mainShift.className = "shift main";
+    mainShift.style.left = "0%";
+    mainShift.style.width = "60%";
+    mainShift.innerText = "18:00 - 02:00";
+    timeline.appendChild(mainShift);
+
+    if (isDouble) {
+        // TURA EXTRA (02-10)
+        const extraShift = document.createElement("div");
+        extraShift.className = "shift extra";
+        extraShift.style.left = "60%";
+        extraShift.style.width = "40%";
+        extraShift.innerText = "02:00 - 10:00";
+        timeline.appendChild(extraShift);
+
+        document.getElementById("status").innerText = "TURA DUBLA";
+    } else {
+        document.getElementById("status").innerText = "TURA NORMALA";
+    }
+
+} else {
+    document.getElementById("status").innerText = "Weekend - liber";
+}
+</script>
+
+</body>
+</html>
